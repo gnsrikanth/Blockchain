@@ -5,16 +5,22 @@ from Crypto import Random
 from Crypto.Hash import SHA256 as hash
 import base64
 
+class crypt:
+  def b64(data):
+    return base64.b64encode(data)
+
+  def hashdata(data):
+    return hash.new(data.encode()).digest()
+
 class Blockchain:
   def __init__():
       chain=[]
   
-  def b64(data):
-    b64=base64.b64encode(data)
-    return b64
+
   
   def create_block(data):
     new_block={'id':str(len(chain)+1),
-              'address':b64(public_key),
+              'address':str(crypt.b64(public_key)),
               'time':str(time.time()),
-              ''}
+              'data'str(data),
+              'myblockhash'=str(crypt.hash())}
