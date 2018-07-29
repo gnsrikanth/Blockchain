@@ -9,7 +9,7 @@ class crypt:
   def b64(data):
     	return base64.b64encode(data)
   def hashdata(data):
-	return hash.new(data.encode()).digest()
+	return hash.new(data).digest()
   def sign(privatekey,data):
 	datahash=hash.new(data.encode()).digest()
 	return privatekey.sign(datahash,'')
