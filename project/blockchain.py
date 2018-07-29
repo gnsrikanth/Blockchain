@@ -7,7 +7,7 @@ import base64
 
 class crypt:
   def b64(data):
-    	return base64.b64encode(data)
+	return base64.b64encode(data)
   def hashdata(data):
 	return hash.new(data).digest()
   def sign(privatekey,data):
@@ -16,13 +16,13 @@ class crypt:
 
 class Blockchain:
   def __init__():
-      chain=[]  
+	chain=[]  
       
   def create_block(data):
-    new_block={'id':str(len(chain)+1),
-              'address':str(crypt.b64(public_key)),
-              'time':str(time.time()),
-              'data':str(data),
-              'myblockhash':str(crypt.hash(((str(len(chain)+1)+(str(crypt.b64(public_key))+(str(time.time())+(str(data))))).encode())),
-              'sign':crypt.sign(privatekey,str(crypt.hash(((str(len(chain)+1)+(str(crypt.b64(public_key))+(str(time.time())+(str(data))))).encode())))}
-    return new_block
+		new_block={'id':str(len(chain)+1),
+                'address':str(crypt.b64(public_key)),
+                'time':str(time.time()),
+                'data':str(data),
+                'myblockhash':str(crypt.hash(((str(len(chain)+1)+(str(crypt.b64(public_key))+(str(time.time())+(str(data))))).encode())),
+                'sign':crypt.sign(privatekey,str(crypt.hash(((str(len(chain)+1)+(str(crypt.b64(public_key))+(str(time.time())+(str(data))))).encode())))}
+		return new_block
