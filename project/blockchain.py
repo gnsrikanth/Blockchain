@@ -22,7 +22,7 @@ class Blockchain:
     new_block={'id':str(len(chain)+1),
               'address':str(crypt.b64(public_key)),
               'time':str(time.time()),
-              'data'str(data),
-              'myblockhash'=str(crypt.hash(((str(len(chain)+1)+(str(crypt.b64(public_key))+(str(time.time())+(str(data))))).encode())),
-              'sign'=crypt.sign(privatekey,str(crypt.hash(((str(len(chain)+1)+(str(crypt.b64(public_key))+(str(time.time())+(str(data))))).encode())))}
+              'data':str(data),
+              'myblockhash':str(crypt.hash(((str(len(chain)+1)+(str(crypt.b64(public_key))+(str(time.time())+(str(data))))).encode())),
+              'sign':crypt.sign(privatekey,str(crypt.hash(((str(len(chain)+1)+(str(crypt.b64(public_key))+(str(time.time())+(str(data))))).encode())))}
     return new_block
