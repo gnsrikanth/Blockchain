@@ -35,7 +35,7 @@ class rsa:
 		f.close()
 		return privatekey,publickey
 	def sign(privatekey,data):
-        datahash=hash.new(data).digest()
+        	datahash=hash.new(data).digest()
 		return privatekey.sign(datahash,'')
 	def verify(publickey,datahash,signature):
 		return publickey.verify(datahash,signature)
