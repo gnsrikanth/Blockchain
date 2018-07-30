@@ -1,9 +1,9 @@
-import time
 import Crypto
 from Crypto.PublicKey import RSA
 from Crypto import Random
 from Crypto.Hash import SHA256 as hash
 import base64
+import time
 
 class rsa:
 	def rsakeys():
@@ -35,7 +35,7 @@ class rsa:
 		f.close()
 		return privatekey,publickey
 	def sign(privatekey,data):
-		datahash=hash.new((data)).digest()
+        datahash=hash.new(data).digest()
 		return privatekey.sign(datahash,'')
 	def verify(publickey,datahash,signature):
 		return publickey.verify(datahash,signature)
@@ -48,27 +48,29 @@ class crypt:
     def hashdata(data):
         return hash.new(data.encode()).digest()
 
-#// __init()__
+
 my_privatekey,my_publickey=rsa.rsakeys()
 block_chain=[]
-#//
+
 class Blockchain:
     def create_block(data):
-            hashthis=(crypt.b64en(crypt.hashdata(str(len(block_chain)+1)+str(data)+str(time.time())+str(my_publickey))))
+            hashthis=(crypt.hashdata(str(len(block_chain)+1)+str(data)+str(time.time())+str(my_publickey)))
             blockdata={'id':str(len(block_chain)+1),
             'data':str(data),
             'timestamp':str(time.time()),
-            'hash':str(crypt.b64en(crypt.hashdata(str(len(block_chain)+1)+str(data)+str(time.time())+str(my_publickey)))),
+            'hash':(crypt.hashdata(str(len(block_chain)+1)+str(data)+str(time.time())+str(my_publickey))),
             'publickey':str(my_publickey),
             'sign':rsa.sign(my_privatekey,hashthis)}
             return blockdata
 
     def make_block(blockdata):
-            if rsa.verify(my_publickey,(crypt.b64de(blockdata['hash'])),(blockdata['sign'])):
+            testisit=rsa.verify(my_publickey,((blockdata['hash'])),(blockdata['sign']))
+            print(testisit)
+
+            if rsa.verify(my_publickey,((blockdata['hash'])),(blockdata['sign'])) == True:
                 block_chain.append(blockdata)
                 print("OK")
             else:
-                print(crypt.b64de(blockdata['hash']))
                 print(blockdata['sign'])
                 print(type(blockdata['sign']))
                 print("Not working Program")
