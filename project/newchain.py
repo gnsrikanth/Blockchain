@@ -48,4 +48,27 @@ class crypt:
     def b64de(data):
         return base64.b64decode(data)
     def hashdata(data):
-        return hash.new(data.encode()).digest()
+        return hash.new(data).digest()
+blocks=[]
+class blockchain:
+    def create_block(data):
+            hashthis=(crypt.hashdata(str(len(block_chain)+1)+str(data)+str(time.time())+str(my_publickey)))
+            blockdata={'id':str(len(block_chain)+1),
+            'data':str(data),
+            'timestamp':str(time.time()),
+            'hash':(crypt.hashdata(str(len(block_chain)+1)+str(data)+str(time.time())+str(my_publickey))),
+            'publickey':str(my_publickey),
+            'sign':rsa.sign(my_privatekey,hashthis)}
+            return blockdata
+
+    def make_block(blockdata):
+            testisit=rsa.verify(my_publickey,((blockdata['hash'])),(blockdata['sign']))
+            print(testisit)
+
+            if rsa.verify(my_publickey,((blockdata['hash'])),(blockdata['sign'])) == True:
+                block_chain.append(blockdata)
+                print("OK")
+            else:
+                print(blockdata['sign'])
+                print(type(blockdata['sign']))
+                print("Not working Program")
