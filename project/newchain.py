@@ -34,13 +34,11 @@ class rsa:
 		publickey=RSA.importKey(f.read())
 		f.close()
 		return privatekey,publickey
-  
 	def sign(privatekey,data):
 		#datahash=hash.new(data).digest()
 		return privatekey.sign(data,'')
-	def verify(publickey,datahash,signature):
-		return publickey.verify(datahash,signature)
-
+	def verify(publickey,data,signature):
+		return publickey.verify(data,signature)
 
 class crypt:
     def b64en(data):
@@ -48,27 +46,35 @@ class crypt:
     def b64de(data):
         return base64.b64decode(data)
     def hashdata(data):
-        return hash.new(data).digest()
-blocks=[]
-class blockchain:
+        return hash.new(data.encode()).hexdigest()
+
+
+my_privatekey,my_publickey=rsa.rsakeys()
+block_chain=[]
+
+class Blockchain:
+	#Our Block Chain
     def create_block(data):
             hashthis=(crypt.hashdata(str(len(block_chain)+1)+str(data)+str(time.time())+str(my_publickey)))
             blockdata={'id':str(len(block_chain)+1),
             'data':str(data),
             'timestamp':str(time.time()),
-            'hash':(crypt.hashdata(str(len(block_chain)+1)+str(data)+str(time.time())+str(my_publickey))),
-            'publickey':str(my_publickey),
-            'sign':rsa.sign(my_privatekey,hashthis)}
+            'hash':hashthis,
+            'publickey':(my_publickey.exportKey('PEM').decode()),
+            'sign':rsa.sign(my_privatekey,hashthis.encode())}
             return blockdata
-
+    #Our block making
     def make_block(blockdata):
-            testisit=rsa.verify(my_publickey,((blockdata['hash'])),(blockdata['sign']))
-            print(testisit)
-
-            if rsa.verify(my_publickey,((blockdata['hash'])),(blockdata['sign'])) == True:
+            my_pub=RSA.importKey(blockdata['publickey'].encode())
+            if rsa.verify(my_pub,((blockdata['hash']).encode()),(blockdata['sign'])) == True:
                 block_chain.append(blockdata)
                 print("OK")
             else:
-                print(blockdata['sign'])
-                print(type(blockdata['sign']))
+                print(blockdata['hash'])
+                print(type(blockdata['hash']))
                 print("Not working Program")
+
+print("1"*30+"Chain1"+str(block_chain)+"\n")
+aa=Blockchain.create_block("srikanth123")
+Blockchain.make_block(aa)
+print("2"*30+"Chain2"+str(block_chain)+"\n")
