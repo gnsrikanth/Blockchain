@@ -5,6 +5,13 @@ from Crypto.Hash import SHA256 as hash
 import base64
 import time
 
+
+import json
+from flask import Flask, jsonify, request
+import requests
+from uuid import uuid4
+from urllib.parse import urlparse
+
 class rsa:
 	def rsakeys():
 		length=1024
@@ -72,9 +79,24 @@ class Blockchain:
             else:
                 print(blockdata['hash'])
                 print(type(blockdata['hash']))
-                print("Not working Program")
+                print("Not Valid")
 
-print("1"*30+"Chain1"+str(block_chain)+"\n")
-aa=Blockchain.create_block("srikanth123")
-Blockchain.make_block(aa)
-print("2"*30+"Chain2"+str(block_chain)+"\n")
+#Flask From here
+app = Flask(__name__)
+@app.route('/get_chain', methods = ['GET'])
+def mine_chain():
+	return jsonify(block_chain),200
+@app.route('/get_public', methods = ['GET'])
+def get_public():
+	return (crypt.b64en(my_publickey.exportKey('PEM'))).decode(),200
+@app.route('/')
+def my_form():
+    return ('<form method="POST"><input name="text"><input type="submit"></form>')
+
+@app.route('/', methods=['POST'])
+def my_form_post():
+    text = request.form['text']
+    ch=Blockchain.create_block(text)
+    Blockchain.make_block(ch)
+    return "Block Will be created",200
+app.run(host = '0.0.0.0', port = 5000)
