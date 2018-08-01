@@ -49,6 +49,7 @@ class rsa:
 	def verify(publickey,data,signature):
 		return publickey.verify(data,signature)
 
+	
 class crypt:
     def b64en(data):
         return base64.b64encode(data)
@@ -82,6 +83,10 @@ class Blockchain:
                 print(blockdata['hash'])
                 print(type(blockdata['hash']))
                 print("Not Valid")
+    def check_block(blockdata):
+            my_pub=RSA.importKey(crypt.b64de(blockdata['publickey'].encode()))
+            return rsa.verify(my_pub,((blockdata['hash']).encode()),(blockdata['sign']))
+                
     def getnodes():
         nodes=requests.get("http://localhost:8000")
         nodes=jsonify(nodes)
@@ -90,7 +95,7 @@ class Blockchain:
             chain=jsonify(chain)
             if len(chain)>len(block_chain):
                 check_chain=(chain[-1])
-                if check_block(chain)==True:
+                if check_block(check_chain)==True:
                     block_chain=chain
             else:
                 pass
