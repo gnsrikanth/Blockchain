@@ -83,21 +83,18 @@ class Blockchain:
                 print(type(blockdata['hash']))
                 print("Not Valid")
     def getnodes():
-            nodes=requests.get("http://localhost:8000")
-			nodes=jsonify(nodes)
-			for n in nodes:
-				chain=requests.get(f'http://{n}/get_chain')
-				chain=jsonify(chain)
-				if len(chain)>len(block_chain)
-					check_chain=(chain[-1])
-					if chech_block(blockdata):
-						my_pub=RSA.importKey(crypt.b64de(blockdata['publickey'].encode()))
-						if rsa.verify(my_pub,((blockdata['hash']).encode()),(blockdata['sign'])) == True:
-						                	block_chain=Chain
-				else:
-					pass
-
-
+        nodes=requests.get("http://localhost:8000")
+        nodes=jsonify(nodes)
+        for n in nodes:
+            chain=requests.get(f'http://{n}/get_chain')
+            chain=jsonify(chain)
+            if len(chain)>len(block_chain):
+                check_chain=(chain[-1])
+                if check_block(chain)==True:
+                    block_chain=chain
+            else:
+                pass
+            
 
 #Flask From here
 app = Flask(__name__)
@@ -118,4 +115,4 @@ def my_form_post():
     Blockchain.make_block(ch)
     time.sleep(2)
     return "Block Will be created",200
-app.run(host = '0.0.0.0', port = 5001)
+app.run(host = '0.0.0.0', port = 5000)
