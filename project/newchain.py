@@ -34,13 +34,13 @@ class rsa:
 		publickey=RSA.importKey(f.read())
 		f.close()
 		return privatekey,publickey
-'''    
+  
 	def sign(privatekey,data):
-		datahash=hash.new(data).digest()
-		return privatekey.sign(datahash,'')
+		#datahash=hash.new(data).digest()
+		return privatekey.sign(data,'')
 	def verify(publickey,datahash,signature):
 		return publickey.verify(datahash,signature)
-'''
+
 
 class crypt:
     def b64en(data):
