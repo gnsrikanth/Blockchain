@@ -60,12 +60,12 @@ class Blockchain:
             'data':str(data),
             'timestamp':str(time.time()),
             'hash':hashthis,
-            'publickey':(my_publickey.exportKey('PEM').decode()),
+            'publickey':(crypt.b64en(my_publickey.exportKey('PEM'))).decode(),
             'sign':rsa.sign(my_privatekey,hashthis.encode())}
             return blockdata
     #Our block making
     def make_block(blockdata):
-            my_pub=RSA.importKey(blockdata['publickey'].encode())
+            my_pub=RSA.importKey(crypt.b64de(blockdata['publickey'].encode()))
             if rsa.verify(my_pub,((blockdata['hash']).encode()),(blockdata['sign'])) == True:
                 block_chain.append(blockdata)
                 print("OK")
