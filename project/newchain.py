@@ -97,6 +97,11 @@ def my_form():
 def my_form_post():
     text = request.form['text']
     ch=Blockchain.create_block(text)
-    Blockchain.make_block(ch)
-    return "Block Will be created",200
+    resp=requests.get("http://localhost:8000")
+    if "ok" in resp.text:
+        Blockchain.make_block(ch)
+        time.sleep(2)
+        return "Block Will be created",200
+    else:
+        return "No Block can be created as it cant be verified :/ ",200
 app.run(host = '0.0.0.0', port = 5000)
