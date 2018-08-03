@@ -18,7 +18,7 @@ class rsacrypt:
 	def decrypt():
 		
 	def sign(privatekey,data):
-		retuen privatekey.sign(data,'')
+		return privatekey.sign(data,'')
 	def verify(publickey,data,signature):
 		return publickey.verify(data,signature)
 
