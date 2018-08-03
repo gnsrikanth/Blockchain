@@ -60,7 +60,7 @@ class blockchain:
 		publickey=RSA.importKey(crypt.b64de(block['publickey'].encode()))
 		blockhash=str(crypt.hashthis(block['bid']+block['timestamp']+block['data']+block['publickey']+block['previous_block_hash']))
 		blocksign=crypt.b64de(block['sign'])
-		return rsacrpyt.verify(publickey,blockhash,blocksign)
+		return rsacrypt.verify(publickey,blockhash,blocksign)
 	def __init__(self):
 		bid=str(0)
 		timestamp=str(time.time())
