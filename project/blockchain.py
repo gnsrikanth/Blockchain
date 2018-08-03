@@ -56,7 +56,7 @@ class blockchain:
 			 'blockhash':blockhash,
 			 'sign':sign}
 		return newblock
-	def verify_block(publickey,block):
+	def verify_block(block):
 		publickey=RSA.importKey(crypt.b64de(block['publickey'].encode()))
 		blockhash=(crypt.hashthis(block['bid']+block['timestamp']+block['data']+block['publickey']+block['previous_block_hash'])).encode()
 		blocksign=(int(crypt.b64de(block['sign'])),)
