@@ -13,9 +13,9 @@ class rsacrypt:
 		privatekey=RSA.generate(length,Random.new().read)
 		publickey=privatekey.publickey()
 		return privatekey,publickey
-	def encrypt():
+	#def encrypt():
 		
-	def decrypt():
+	#def decrypt():
 		
 	def sign(privatekey,data):
 		return privatekey.sign(data,'')
@@ -31,7 +31,7 @@ class crypt:
 	def b64en(data):
         	return base64.b64encode(data)
 	def b64de(data):
-		retuen base64.b64decode(data)
+		return base64.b64decode(data)
 
 class blockchain:
 	def create_block(data):
