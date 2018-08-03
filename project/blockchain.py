@@ -41,7 +41,7 @@ class crypt:
 
 class blockchain:
 	def create_block(data):
-		bid=str(len(block_chain)+1)
+		bid=str(int(block_chain[-1]['bid'])+1)
 		timestamp=str(time.time())
 		data=str(data)
 		publickey=str((crypt.b64en(my_publickey.exportKey('PEM'))).decode())
@@ -58,7 +58,7 @@ class blockchain:
 		return newblock
 	def verify_block(publickey,block):
 		publickey=RSA.importKey(crypt.b64de(block['publickey'].encode()))
-		blockhash=str(crypt.hashthis(block['bid']+block['timestamp']+block['data']+block['publickey']+block['previous_block_hash']))
+		blockhash=(crypt.hashthis(block['bid']+block['timestamp']+block['data']+block['publickey']+block['previous_block_hash'])).encode()
 		blocksign=(int(crypt.b64de(block['sign'])),)
 		return rsacrypt.verify(publickey,blockhash,blocksign)
 	def __init__(self):
