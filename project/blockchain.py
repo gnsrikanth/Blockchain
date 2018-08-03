@@ -36,7 +36,7 @@ class crypt:
 class blockchain:
 	def create_block(data):
 		bid=str(len(block_chain)+1)
-		timestamp=str(time.time.now)
+		timestamp=str(time.time())
 		data=str(data)
 		publickey=str((crypt.b64en(my_publickey.exportKey('PEM'))).decode())
 		previous_block_hash=str(crypt.hashthis(str(block_chain[-1])))
