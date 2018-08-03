@@ -18,18 +18,24 @@ class rsacrypt:
 	#def decrypt():
 		
 	def sign(privatekey,data):
-		return privatekey.sign(data,'')
+		if type(data)!=str:
+			return privatekey.sign(data,'')
+		else:
+			return privatekey.sign(data.encode(),'')
 	def verify(publickey,data,signature):
 		return publickey.verify(data,signature)
 
 class crypt:
 	def hashthis(data):
-		if type(data)=="bytes":
+		if type(data)!=str:
 			return hash.new(data).hexdigest()
 		else:
 			return hash.new(data.encode()).hexdigest()
 	def b64en(data):
-        	return base64.b64encode(data)
+		if type(data)!=str:
+			return base64.b64encode(data)
+		else:
+			return base64.b64encode(data.encode())
 	def b64de(data):
 		return base64.b64decode(data)
 
@@ -62,7 +68,7 @@ class blockchain:
 		publickey=str((crypt.b64en(my_publickey.exportKey('PEM'))).decode())
 		previous_block_hash=str(0)
 		blockhash=str(crypt.hashthis(bid+timestamp+data+publickey+previous_block_hash))
-		sign=crypt.b64en(rsacrypt.sign(my_privatekey,str(blockhash)))
+		sign=crypt.b64en(str(rsacrypt.sign(my_privatekey,blockhash)))
 		newblock={'id':bid,
 			 'timestamp':timestamp,
 			 'data':data,
@@ -72,4 +78,4 @@ class blockchain:
 			 'sign':sign}
 		block_chain.append(newbock)
 
-my_publickey,my_privatekey=rsacrypt.gen()
+my_privatekey,my_publickey=rsacrypt.gen()
