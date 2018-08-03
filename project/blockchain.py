@@ -20,7 +20,7 @@ class rsacrypt:
 	def verify(publickey,data,signature):
 		return publickey.verify(data,signature)
 class crypt:
-	def ben(data):
+	def hashthis(data):
 		if type(data)=="bytes":
 			return hash.new(data).hexdigest()
 		else:
