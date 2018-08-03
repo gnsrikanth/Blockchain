@@ -12,9 +12,16 @@ class rsacrypt:
 		publickey=privatekey.publickey()
 		return privatekey,publickey
 	def encrypt():
+		
 	def decrypt():
+		
 	def sign(privatekey,data):
 		retuen privatekey.sign(data,'')
 	def verify(publickey,data,signature):
 		return publickey.verify(data,signature)
 class crypt:
+	def ben(data):
+		if type(data)=="bytes":
+			return hash.new(data).hexdigest()
+		else:
+			return hash.new(data.encode()).hexdigest()
