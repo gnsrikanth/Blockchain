@@ -47,7 +47,7 @@ class blockchain:
 		publickey=str((crypt.b64en(my_publickey.exportKey('PEM'))).decode())
 		previous_block_hash=str(crypt.hashthis(str(block_chain[-1])))
 		blockhash=str(crypt.hashthis(bid+timestamp+data+publickey+previous_block_hash))
-		sign=crypt.b64en((rsacrypt.sign(my_privatekey,blockhash))[0])
+		sign=crypt.b64en(str(rsacrypt.sign(my_privatekey,blockhash)[0]))
 		newblock={'bid':bid,
 			 'timestamp':timestamp,
 			 'data':data,
