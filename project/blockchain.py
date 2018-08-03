@@ -48,7 +48,7 @@ class blockchain:
 		previous_block_hash=str(crypt.hashthis(str(block_chain[-1])))
 		blockhash=str(crypt.hashthis(bid+timestamp+data+publickey+previous_block_hash))
 		sign=crypt.b64en(rsacrypt.sign(my_privatekey,hashblock))
-		newblock={'id':bid,
+		newblock={'bid':bid,
 			 'timestamp':timestamp,
 			 'data':data,
 			 'publickey':publickey,
@@ -56,7 +56,7 @@ class blockchain:
 			 'blockhash':blockhash,
 			 'sign':sign}
 		return newbock
-	def verify_block(publickey,block,sign):
+	def verify_block(publickey,block):
 		publickey=RSA.importKey(crypt.b64de(block['publickey'].encode()))
 		blockhash=str(crypt.hashthis(block['bid']+block['timestamp']+block['data']+block['publickey']+block['previous_block_hash']))
 		blocksign=crypt.b64de(block['sign'])
@@ -69,7 +69,7 @@ class blockchain:
 		previous_block_hash=str(0)
 		blockhash=str(crypt.hashthis(bid+timestamp+data+publickey+previous_block_hash))
 		sign=crypt.b64en(str(rsacrypt.sign(my_privatekey,blockhash)))
-		newblock={'id':bid,
+		newblock={'bid':bid,
 			 'timestamp':timestamp,
 			 'data':data,
 			 'publickey':publickey,
