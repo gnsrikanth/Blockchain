@@ -76,6 +76,6 @@ class blockchain:
 			 'previous_block_hash':previous_block_hash,
 			 'blockhash':blockhash,
 			 'sign':sign}
-		block_chain.append(newbock)
+		block_chain.append(newblock)
 
 my_privatekey,my_publickey=rsacrypt.gen()
