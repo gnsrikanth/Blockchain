@@ -83,4 +83,7 @@ blockchain()
 #Create a block with Data 'Hello World!'
 newblock=blockchain.create_block('Hello World!')
 #verify the digital signature of the block to check if block is valid
-blockchain.verify(newblock)
+if blockchain.verify(newblock) == True:
+	block_chain.append(newblock)
+else:
+	print("This block has error")
