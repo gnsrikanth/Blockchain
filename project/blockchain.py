@@ -60,7 +60,14 @@ class blockchain:
 		publickey=RSA.importKey(crypt.b64de(block['publickey'].encode()))
 		blockhash=(crypt.hashthis(block['bid']+block['timestamp']+block['data']+block['publickey']+block['previous_block_hash'])).encode()
 		blocksign=(int(crypt.b64de(block['sign'])),)
-		return rsacrypt.verify(publickey,blockhash,blocksign)
+		#############Check from Here
+		prev_block_check=block['previous_block_hash'] == crypt.hashthis(str(block_chain[int(block['bid'])-1]))
+		
+		if prev_block_check==Ture:
+			return rsacrypt.verify(publickey,blockhash,blocksign)
+		else:
+			print("Previous block error")
+		#########################
 	def __init__(self):
 		bid=str(0)
 		timestamp=str(time.time())
