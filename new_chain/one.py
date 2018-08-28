@@ -40,8 +40,10 @@ class crypt:
 #        SERVER		#
 #########################
 c=rsacrypt()
-private,public=c.gen()
+Aprivate,Apublic=c.gen()
 import socket
+import requests
+
 ip="0.0.0.0"
 port=8080
 s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -54,3 +56,15 @@ print('[+]Connected to',addr)
 # Step 1 RAND STR
 #####
 rand_str=conn.recv(1024)
+user,string,str_hash,str_sign=rand_str.split("*")
+# get Blockchain
+blockchain=requests.get("http://127.0.0.1/get_chain")
+blockchain=blockchain.text()
+#Find Public key in blockchain
+Bpublic=blockchain[user]['publickey']
+Bpublic=RSA.importKey(crypt.b64de(block['publickey'].encode()))
+str_sign=(int(crypt.b64de(block['sign'])),)
+if Bpublic.veryfy(string,str_hash,str_sign) == True:
+	print("[+]Done!")
+else:
+	print("[-]Error")
