@@ -56,7 +56,9 @@ print('[+]Connected to',addr)
 # Step 1 RAND STR
 #####
 rand_str=conn.recv(1024)
-user,string,str_hash,str_sign=rand_str.split("*")
+#user,string,str_hash,str_sign=rand_str.split("*")
+
+user,string,str_hash,str_sign=eval(rand_str)[0],eval(rand_str)[1],eval(rand_str)[2]
 # get Blockchain
 blockchain=requests.get("http://127.0.0.1/get_chain")
 blockchain=blockchain.text()
