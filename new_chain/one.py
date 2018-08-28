@@ -5,8 +5,6 @@ from Crypto.Hash import SHA256 as hash
 import base64
 import time
 
-block_chain=[]
-
 class rsacrypt:
 	def gen():
 		length=1024
@@ -38,3 +36,21 @@ class crypt:
 			return base64.b64encode(data.encode())
 	def b64de(data):
 		return base64.b64decode(data)
+#########################
+#        SERVER		#
+#########################
+c=rsacrypt()
+private,public=c.gen()
+import socket
+ip="0.0.0.0"
+port=8080
+s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+s.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
+s.bind((ip,port))
+s.listen(1)
+conn,addr=s.accept()
+print('[+]Connected to',addr)
+#####
+# Step 1 RAND STR
+#####
+rand_str=conn.recv(1024)
