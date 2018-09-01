@@ -57,17 +57,34 @@ def getchain(ip,port):
 	chain=requests.get(f'http://{ip}:{port}/get_chain')
 	return (chain.text)
 	
+mdef getchain(ip,port):
+	chain=requests.get(f'http://{ip}:{port}/get_chain')
+	return (chain.text)
+
+block_chain=getchin("127.0.0.1",5000)
+
+rand_string="RANDOM STRING 123"
+
 my_block="2" # NUMBER OF THE BLOCK
 
-msg=conn.recv(2048)
-enmsg,sign,recv_block=resp.split('*')
+def step1(recv_block,my_block_id):
+	msg=conn.recv(2048)
 	
-public_recv=RSA.importKey(blockchain[recv_block]['publickey']) 	# reciever public key
-enmsg=rsacrypt.decrypt(private,enmsg)
-sign=rsacrypt.sign(private,enmsg) 
-#publickeystr=(privatekey.exportKey('PEM')).decode()
-hash_string=crypt.hash(rand_string+str(block)+sign)
-data = enmsg+"*"+str(sign)+"*"+hash_string
-		
-
+	public_recv=RSA.importKey(blockchain[recv_block]['publickey']) 	# reciever public key
+	enmsg=rsacrypt.encrypt(rand_string,public_recv)
+	sign=rsacrypt.sign(private,enmsg) 
+	#publickeystr=(privatekey.exportKey('PEM')).decode()
+	hash_string=crypt.hash(rand_string+str(block)+sign)
+	data = enmsg+"*"+str(sign)+"*"+hash_string
+	
+	s.send(data.encode())
+	
+	resp=(s.recv()).decode()
+	enmsg,sign,recv_block=resp.split('*')
+	
+	if (rsacrypt.decrypt(enmsg,private) == rand_string):
+		# VERIFY THE SIGN CODE HERE
+		return True
+	else:
+		return False
 
