@@ -43,8 +43,8 @@ class crypt:
 #########################
 #        CLIENT     		#
 #########################
-c=rsacrypt()
-private,public=c.gen()
+rsacrypt()
+private,public=rsacrypt.gen()
 import socket
 import requests
 
