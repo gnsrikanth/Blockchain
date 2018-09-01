@@ -60,10 +60,20 @@ def getchain(ip,port):
 	chain=requests.get(f'http://{ip}:{port}/get_chain')
 	return (chain.text)
 
-#STEP 1 GENERATE RANDOM STR
-def step1(rand_string,block,recv_block):
-	public_recv=
-	sign=rsacrypt.sign(private,rsacrypt.encrypt(rand_string,public_recv))
+rand_string=
+
+my_block="2" # NUMBER OF THE BLOCK
+def step1(recv_block,my_block_id):
+	public_recv=RSA.importKey(recv_block['publickey']) 	# reciever public key
+	enmsg=rsacrypt.encrypt(rand_string,public_recv)
+	sign=rsacrypt.sign(private,enmsg) #sign the message with our private key, encrypt message with public of reciever
 	#publickeystr=(privatekey.exportKey('PEM')).decode()
 	hash_string=crypt.hash(rand_string+str(block)+sign)
+	data = enmsg+"*"+str(sign)+"*"hash_string
+	
+	s.send(data.encode())
+	
+	resp=(s.recv()).decode()
+	enmsg,sign,recv_block=resp.split('*')
+	public_recv=RSA.importKey(recv_block['publickey'])
 	
