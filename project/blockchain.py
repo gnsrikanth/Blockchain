@@ -70,6 +70,7 @@ class blockchain:
 			print("Previous block error")
 		#########################
 		'''
+		return rsacrypt.verify(publickey,blockhash,blocksign)
 	def __init__(self):
 		bid=str(0)
 		timestamp=str(time.time())
