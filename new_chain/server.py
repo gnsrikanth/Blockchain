@@ -56,21 +56,18 @@ print('[+]Connected to',addr)
 def getchain(ip,port):
 	chain=requests.get(f'http://{ip}:{port}/get_chain')
 	return (chain.text)
-
-def rand_str(string1,blockno):
 	
-
 my_block="2" # NUMBER OF THE BLOCK
-def step1(recv_block,my_block_id):
-	msg=conn.recv(2048)
-	enmsg,sign,recv_block=resp.split('*')
+
+msg=conn.recv(2048)
+enmsg,sign,recv_block=resp.split('*')
 	
-	public_recv=RSA.importKey(blockchain[recv_block]['publickey']) 	# reciever public key
-	enmsg=rsacrypt.decrypt(private,enmsg)
-	sign=rsacrypt.sign(private,enmsg) 
-	#publickeystr=(privatekey.exportKey('PEM')).decode()
-	hash_string=crypt.hash(rand_string+str(block)+sign)
-	data = enmsg+"*"+str(sign)+"*"+hash_string
+public_recv=RSA.importKey(blockchain[recv_block]['publickey']) 	# reciever public key
+enmsg=rsacrypt.decrypt(private,enmsg)
+sign=rsacrypt.sign(private,enmsg) 
+#publickeystr=(privatekey.exportKey('PEM')).decode()
+hash_string=crypt.hash(rand_string+str(block)+sign)
+data = enmsg+"*"+str(sign)+"*"+hash_string
 		
 
 
