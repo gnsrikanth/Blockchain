@@ -4,21 +4,19 @@ from Crypto import Random
 from Crypto.Hash import SHA256 as hash
 import base64
 import time
+import json
+import requests
 
-class rsacrypt:
+class ersa:
 	def gen():
 		length=1024
 		privatekey=RSA.generate(length,Random.new().read)
 		publickey=privatekey.publickey()
 		return privatekey,publickey
-	def encrypt(rsa_publickey,plain_text):
-		cipher_text=rsa_publickey.encrypt(plain_text,32)[0]
-		b64cipher=base64.b64encode(cipher_text)
-		return b64cipher
-	def decrypt(b64cipher, rsa_privatekey):
-		decoded_ciphertext = base64.b64decode(b64cipher)
-		plaintext = rsa_privatekey.decrypt(decoded_ciphertext)
-		return plaintext
+	#def encrypt():
+		
+	#def decrypt():
+		
 	def sign(privatekey,data):
 		if type(data)!=str:
 			return privatekey.sign(data,'')
@@ -40,44 +38,49 @@ class crypt:
 			return base64.b64encode(data.encode())
 	def b64de(data):
 		return base64.b64decode(data)
+
+private,public=ersa.gen()
+
 #########################
-#        CLIENT     		#
+#        Client		#
 #########################
-rsacrypt()
-private,public=rsacrypt.gen()
+
+'''
+Get Blockchain
+'''
+
+blockchain=requests.get("http://127.0.0.1:5000/get_chain")
+blockchain=blockchain.text
+blockchain=json.loads(blockchain)
+myid=1
+'''
+Step 1 Recieve string
+'''
+
 import socket
 import requests
 
 ip="127.0.0.1"
-port=8080
+port=1234
 s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
-s.connect(ip,port)
-print('[+]Connected! ',s)
+s.connect((ip,port))
+print('[+]Connected to',s)
 
-#### get chain
-def getchain(ip,port):
-	chain=requests.get(f'http://{ip}:{port}/get_chain')
-	return (chain.text)
+# String format [id,msg,sign]
+msg="Hello"
+message=str([myid,msg,ersa.sign(private,msg)]).encode()
+s.send(message)
 
-rand_string="RANDOM STRING 123"
+#time.sleep(0.5)
+#verify
 
-my_block="2" # NUMBER OF THE BLOCK
-def step1(recv_block,my_block_id):
-	public_recv=RSA.importKey(blockchain[recv_block]['publickey']) 	# reciever public key
-	enmsg=rsacrypt.encrypt(rand_string,public_recv)
-	sign=rsacrypt.sign(private,enmsg) 
-	#publickeystr=(privatekey.exportKey('PEM')).decode()
-	hash_string=crypt.hash(rand_string+str(block)+sign)
-	data = enmsg+"*"+str(sign)+"*"+hash_string
-	
-	s.send(data.encode())
-	
-	resp=(s.recv()).decode()
-	enmsg,sign,recv_block=resp.split('*')
-	
-	if (rsacrypt.decrypt(enmsg,private) == rand_string):
-		# VERIFY THE SIGN CODE HERE
-		return True
-	else:
-		return False
+message=s.recv(2048)
+bid,msg1,sign=eval(message.decode())
+print((crypt.b64de(blockchain[bid]['publickey'])).decode())
+Bpublic	= RSA.importKey((crypt.b64de(blockchain[bid]['publickey'])).decode())
+
+if Bpublic.verify(msg,sign) == False: ##### !! CHANGE THIS TO False
+	print("Error")
+else:
+	print("WORKING!")
