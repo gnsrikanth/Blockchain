@@ -91,17 +91,13 @@ def get_public():
 	return (crypt.b64en(my_publickey.exportKey('PEM'))).decode(),200
 @app.route('/')
 def my_form():
-    return ('<form method="POST"><input name="text"><input type="submit"></form>')
+    return ('<h3>Enter Key</h3><br/><form method="POST"><input name="key"><input type="submit"></form>')
 
 @app.route('/', methods=['POST'])
 def my_form_post():
-    text = request.form['text']
+    text = request.form['key']
     ch=Blockchain.create_block(text)
-    resp=requests.get("http://localhost:8000")
-    if "ok" in resp.text:
-        Blockchain.make_block(ch)
-        time.sleep(2)
-        return "Block Will be created",200
-    else:
-        return "No Block can be created as it cant be verified :/ ",200
+    Blockchain.make_block(ch)
+    time.sleep(2)
+    return "Block Will be created",200
 app.run(host = '0.0.0.0', port = 5000)
