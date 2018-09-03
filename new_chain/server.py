@@ -4,8 +4,9 @@ from Crypto import Random
 from Crypto.Hash import SHA256 as hash
 import base64
 import time
+import json
 
-class rsacrypt:
+class ersa:
 	def gen():
 		length=1024
 		privatekey=RSA.generate(length,Random.new().read)
@@ -36,11 +37,25 @@ class crypt:
 			return base64.b64encode(data.encode())
 	def b64de(data):
 		return base64.b64decode(data)
+
+private,public=ersa.gen()
+
 #########################
 #        SERVER		#
 #########################
-c=rsacrypt()
-Aprivate,Apublic=c.gen()
+
+'''
+Get Blockchain
+'''
+
+blockchain=requests.get("http://127.0.0.1/get_chain")
+blockchain=blockchain.text
+blockchain=json.loads(blockchain)
+myid=2
+'''
+Step 1 Recieve string
+'''
+
 import socket
 import requests
 
@@ -53,38 +68,17 @@ s.listen(1)
 conn,addr=s.accept()
 print('[+]Connected to',addr)
 
-def getchain(ip,port):
-	chain=requests.get(f'http://{ip}:{port}/get_chain')
-	return (chain.text)
-	
-mdef getchain(ip,port):
-	chain=requests.get(f'http://{ip}:{port}/get_chain')
-	return (chain.text)
+# String format [id,msg,sign]
+recv_str=conn.recv(2048)
+recv_str=eval(recv_str)
 
-block_chain=getchin("127.0.0.1",5000)
 
-rand_string="RANDOM STRING 123"
+#Verify
+bid,msg,sign=recv_str
 
-my_block="2" # NUMBER OF THE BLOCK
+Bpublic	= RSA.importKey(blockchain[bid]['public'])
 
-def step1(recv_block,my_block_id):
-	msg=conn.recv(2048)
-	
-	public_recv=RSA.importKey(blockchain[recv_block]['publickey']) 	# reciever public key
-	enmsg=rsacrypt.encrypt(rand_string,public_recv)
-	sign=rsacrypt.sign(private,enmsg) 
-	#publickeystr=(privatekey.exportKey('PEM')).decode()
-	hash_string=crypt.hash(rand_string+str(block)+sign)
-	data = enmsg+"*"+str(sign)+"*"+hash_string
-	
-	s.send(data.encode())
-	
-	resp=(s.recv()).decode()
-	enmsg,sign,recv_block=resp.split('*')
-	
-	if (rsacrypt.decrypt(enmsg,private) == rand_string):
-		# VERIFY THE SIGN CODE HERE
-		return True
-	else:
-		return False
-
+if ersa.verify(Bpublic,msg,sign) == False:
+	print("Error")
+else:
+	conn.send(str([myid,msg,ersa.sign(private,msg)]).encode())
