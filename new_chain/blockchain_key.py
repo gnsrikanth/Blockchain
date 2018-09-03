@@ -173,15 +173,15 @@ class Blockchain:
     		data=str(0)
     		publickey=str((crypt.b64en(my_publickey.exportKey('PEM'))).decode())
     		previous_block_hash=str(0)
-    		blockhash=str(crypt.hashthis(bid+timestamp+data+publickey+previous_block_hash))
-    		sign=crypt.b64en(str(rsacrypt.sign(my_privatekey,blockhash)))
-    		newblock={'bid':bid,
-    			 'timestamp':timestamp,
-    			 'data':data,
-    			 'publickey':publickey,
-    			 'previous_block_hash':previous_block_hash,
-    			 'blockhash':blockhash,
-    			 'sign':sign}
+    		    blockhash=str(crypt.hashthis(bid+timestamp+data+publickey+previous_block_hash))
+    		    sign=crypt.b64en(str(rsacrypt.sign(my_privatekey,blockhash)))
+    		    newblock={'bid':bid,
+    			     'timestamp':timestamp,
+    			     'data':data,
+    			     'publickey':publickey,
+    			     'previous_block_hash':previous_block_hash,
+    			     'blockhash':blockhash,
+    			     'sign':sign}
     		block_chain.append(newblock)
     
     def create_block(data):
