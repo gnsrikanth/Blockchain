@@ -8,7 +8,7 @@ import time
 
 import json
 from flask import Flask, jsonify, request
-#import requests
+import requests
 from uuid import uuid4
 from urllib.parse import urlparse
 
@@ -61,9 +61,10 @@ block_chain=[]
 
 class Blockchain:
 	#Our Block Chain
-    def create_block():
-            hashthis=(crypt.hashdata(str(len(block_chain)+1)+str(time.time())+str(my_publickey)))
-            blockdata={'bid':str(len(block_chain)+1),
+    def create_block(data):
+            hashthis=(crypt.hashdata(str(len(block_chain)+1)+str(data)+str(time.time())+str(my_publickey)))
+            blockdata={'id':str(len(block_chain)+1),
+            'data':str(data),
             'timestamp':str(time.time()),
             'hash':hashthis,
             'publickey':(crypt.b64en(my_publickey.exportKey('PEM'))).decode(),
@@ -88,17 +89,14 @@ def mine_chain():
 @app.route('/get_public', methods = ['GET'])
 def get_public():
 	return (crypt.b64en(my_publickey.exportKey('PEM'))).decode(),200
-
-'''
 @app.route('/')
 def my_form():
-    return ('<form method="POST"><input name="text"><input type="submit"></form>')
-'''
+    return ('<h3>Enter Key</h3><br/><form method="POST"><input name="key"><input type="submit"></form>')
 
-@app.route('/')
+@app.route('/', methods=['POST'])
 def my_form_post():
-    #text = request.form['text']
-    ch=Blockchain.create_block()
+    text = request.form['key']
+    ch=Blockchain.create_block(text)
     Blockchain.make_block(ch)
     time.sleep(2)
     return "Block Will be created",200
