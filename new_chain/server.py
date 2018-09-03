@@ -5,6 +5,7 @@ from Crypto.Hash import SHA256 as hash
 import base64
 import time
 import json
+import requests
 
 class ersa:
 	def gen():
@@ -48,7 +49,7 @@ private,public=ersa.gen()
 Get Blockchain
 '''
 
-blockchain=requests.get("http://127.0.0.1/get_chain")
+blockchain=requests.get("http://127.0.0.1:5000/get_chain")
 blockchain=blockchain.text
 blockchain=json.loads(blockchain)
 myid=2
@@ -60,7 +61,7 @@ import socket
 import requests
 
 ip="0.0.0.0"
-port=8080
+port=1234
 s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
 s.bind((ip,port))
@@ -70,15 +71,15 @@ print('[+]Connected to',addr)
 
 # String format [id,msg,sign]
 recv_str=conn.recv(2048)
-recv_str=eval(recv_str)
+recv_str=eval(recv_str.decode())
 
 
 #Verify
 bid,msg,sign=recv_str
 
-Bpublic	= RSA.importKey(blockchain[bid]['public'])
-
-if ersa.verify(Bpublic,msg,sign) == False:
+Bpublic	= RSA.importKey((crypt.b64de(blockchain[bid]['publickey'])).decode())
+print(ersa.verify(Bpublic,b'Hello',sign))
+if Bpublic.verify(msg,sign) == False : ##### !! CHANGE THIS TO False
 	print("Error")
 else:
 	conn.send(str([myid,msg,ersa.sign(private,msg)]).encode())
