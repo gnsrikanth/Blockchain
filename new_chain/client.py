@@ -40,47 +40,35 @@ class crypt:
 		return base64.b64decode(data)
 
 private,public=ersa.gen()
+#pk=str((crypt.b64en(public.exportKey('PEM'))).decode())
+pk=str(((public.exportKey('PEM'))).decode())
+requests.post('http://127.0.0.1:5000', data = {'key':pk})
 
-#########################
-#        Client		#
-#########################
-
-'''
-Get Blockchain
-'''
-
+# GET BLOCKCHAIN
 blockchain=requests.get("http://127.0.0.1:5000/get_chain")
 blockchain=blockchain.text
 blockchain=json.loads(blockchain)
-myid=1
-'''
-Step 1 Recieve string
-'''
+
+#get blockchain ID
+for n in range  (0,len(blockchain)):
+    if (pk)==(blockchain[n]['data']):
+        bid=int(blockchain[n]['id'])-1
+        
+'''###
+Client
+###'''
 
 import socket
 import requests
 
 ip="127.0.0.1"
-port=1234
+port=4444
 s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
 s.connect((ip,port))
 print('[+]Connected to',s)
 
-# String format [id,msg,sign]
 msg="Hello"
-message=str([myid,msg,ersa.sign(private,msg)]).encode()
+message=str([bid,msg,ersa.sign(private,msg)]).encode()
 s.send(message)
 
-#time.sleep(0.5)
-#verify
-
-message=s.recv(2048)
-bid,msg1,sign=eval(message.decode())
-print((crypt.b64de(blockchain[bid]['publickey'])).decode())
-Bpublic	= RSA.importKey((crypt.b64de(blockchain[bid]['publickey'])).decode())
-
-if Bpublic.verify(msg,sign) == False: ##### !! CHANGE THIS TO False
-	print("Error")
-else:
-	print("WORKING!")
