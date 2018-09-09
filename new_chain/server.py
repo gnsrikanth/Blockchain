@@ -47,46 +47,50 @@ requests.post('http://127.0.0.1:5000', data = {'key':pk})
 
 
 # GET BLOCKCHAIN
-blockchain=requests.get("http://127.0.0.1:5000/get_chain")
+blockchain=requests.get("http://127.0.0.1:5000/get")
 blockchain=blockchain.text
 blockchain=json.loads(blockchain)
 
-
-#get blockchain ID
-for n in range  (0,len(blockchain)):
-    if (pk)==(blockchain[n]['data']):
-        bid=int(blockchain[n]['id'])-1
+#Find my id SID
+for i in range (0,100):
+    if blockchain[i]['data']==pk:
+        sid=int(blockchain[i]['bid'])
+        break
+    else:
+        pass
 '''        
 #SERVER
 '''
 import socket
 import requests
-
 ip="0.0.0.0"
-port=4444
+port=4411
 s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
 s.bind((ip,port))
 s.listen(1)
 conn,addr=s.accept()
-print('[+]Connected to',addr)
 
-recv_str=conn.recv(2048)
-recv_str=eval(recv_str.decode())
-print(recv_str)
+'''
+STEP 1 recieve client id and send string 
+'''
+conn.send(str(sid).encode()) # Send id
+data=conn.recv(2048) #recieve data
+data=eval(data)
 
-#get blockchain
-blockchain=requests.get("http://127.0.0.1:5000/get_chain")
+#update blockchain
+blockchain=requests.get("http://127.0.0.1:5000/get")
 blockchain=blockchain.text
 blockchain=json.loads(blockchain)
-#Get Public Key
-pk=blockchain[int(recv_str[0])]['data']
-PK=RSA.importKey(pk.encode())
+#client public key
+cpub=blockchain[int(data[0])]['data'].encode()
+Cpub=RSA.importKey(cpub)
+resp1=Cpub.verify(data[1],data[2])
 
-if (PK.verify(recv_str[1].encode(),recv_str[2])) == True:
-    print("Yes!")
-    '''
-    DO THIS
-    '''
+if resp1 == True:
+    sign=private.sign(data[1],'')
+    conn.send(str(sign).encode())
+    #Done verification
+    print(conn.recv(1024))
 else:
-    print("Error")
+    print("False")
