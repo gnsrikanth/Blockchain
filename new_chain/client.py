@@ -40,20 +40,22 @@ class crypt:
 		return base64.b64decode(data)
 
 private,public=ersa.gen()
-#pk=str((crypt.b64en(public.exportKey('PEM'))).decode())
 pk=str(((public.exportKey('PEM'))).decode())
 requests.post('http://127.0.0.1:5000', data = {'key':pk})
 
 # GET BLOCKCHAIN
-blockchain=requests.get("http://127.0.0.1:5000/get_chain")
+blockchain=requests.get("http://127.0.0.1:5000/get")
 blockchain=blockchain.text
 blockchain=json.loads(blockchain)
 
-#get blockchain ID
-for n in range  (0,len(blockchain)):
-    if (pk)==(blockchain[n]['data']):
-        bid=int(blockchain[n]['id'])-1
-        
+#Find my id CID
+for i in range (0,100):
+    if blockchain[i]['data']==pk:
+        cid=int(blockchain[i]['bid'])
+        break
+    else:
+        pass
+
 '''###
 Client
 ###'''
@@ -62,13 +64,27 @@ import socket
 import requests
 
 ip="127.0.0.1"
-port=4444
+port=4411
 s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
 s.connect((ip,port))
 print('[+]Connected to',s)
 
-msg="Hello"
-message=str([bid,msg,ersa.sign(private,msg)]).encode()
-s.send(message)
-
+# Load server public key
+sid=int(s.recv(1024))
+spub=blockchain[sid]['data'].encode()
+SPUB=RSA.importKey(spub)
+# Send String
+string=b'hello'
+sign=private.sign(string,'')
+data=str([cid,string,sign]).encode()
+s.send(data)
+#Step 2 recieve data
+sign=s.recv(2048).decode()
+sign=eval(sign)
+sign=(SPUB.verify(string,sign))
+if sign==True:
+    print("Connection Done")
+    s.send(b"Hello server")
+else:
+    print("false")
