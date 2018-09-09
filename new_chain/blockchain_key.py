@@ -5,15 +5,16 @@ from Crypto.Hash import SHA256 as hash
 import base64
 import time
 
-
 import json
 from flask import Flask, jsonify, request
 import requests
 from uuid import uuid4
 from urllib.parse import urlparse
 
-class rsa:
-	def rsakeys():
+block_chain=[]
+
+class rsacrypt:
+	def gen():
 		length=1024
 		privatekey = RSA.generate(length, Random.new().read)
 		publickey = privatekey.publickey()
@@ -42,62 +43,83 @@ class rsa:
 		f.close()
 		return privatekey,publickey
 	def sign(privatekey,data):
-		#datahash=hash.new(data).digest()
-		return privatekey.sign(data,'')
+		return privatekey.sign(data.encode(),'')
 	def verify(publickey,data,signature):
 		return publickey.verify(data,signature)
 
 class crypt:
-    def b64en(data):
-        return base64.b64encode(data)
-    def b64de(data):
-        return base64.b64decode(data)
-    def hashdata(data):
-        return hash.new(data.encode()).hexdigest()
+	def hashthis(data):
+		if type(data)!=str:
+			return hash.new(data).hexdigest()
+		else:
+			return hash.new(data.encode()).hexdigest()
+	def b64en(data):
+		if type(data)!=str:
+			return base64.b64encode(data)
+		else:
+			return base64.b64encode(data.encode())
+	def b64de(data):
+		return base64.b64decode(data)
 
-
-my_privatekey,my_publickey=rsa.rsakeys()
+private,public=rsacrypt.gen()
 block_chain=[]
 
-class Blockchain:
-	#Our Block Chain
+class blockchain:
+    def __init__(self):
+        bid=str(0)
+        timestamp=str(time.time())
+        data=str(0)
+        publickey=(public.exportKey('PEM').decode())
+        previous_block_hash=str(0)
+        blockhash=str(crypt.hashthis(bid+timestamp+data+publickey+previous_block_hash))
+        sign=str(private.sign(blockhash.encode(),'')[0])
+        newblock={'bid':bid,
+			 'timestamp':timestamp,
+			 'data':data,
+			 'publickey':publickey,
+			 'previous_block_hash':previous_block_hash,
+			 'blockhash':blockhash,
+			 'sign':sign}
+        block_chain.append(newblock)
+        
     def create_block(data):
-            hashthis=(crypt.hashdata(str(len(block_chain)+1)+str(data)+str(time.time())+str(my_publickey)))
-            blockdata={'id':str(len(block_chain)+1),
-            'data':str(data),
-            'timestamp':str(time.time()),
-            'hash':hashthis,
-            'publickey':(crypt.b64en(my_publickey.exportKey('PEM'))).decode(),
-            'sign':rsa.sign(my_privatekey,hashthis.encode())}
-            return blockdata
-    #Our block making
-    def make_block(blockdata):
-            my_pub=RSA.importKey(crypt.b64de(blockdata['publickey'].encode()))
-            if rsa.verify(my_pub,((blockdata['hash']).encode()),(blockdata['sign'])) == True:
-                block_chain.append(blockdata)
-                print("OK")
-            else:
-                print(blockdata['hash'])
-                print(type(blockdata['hash']))
-                print("Not Valid")
+        bid=str(int(block_chain[-1]['bid'])+1)
+        timestamp=str(time.time())
+        data=str(data)
+        publickey=(public.exportKey('PEM').decode())
+        previous_block_hash=str(crypt.hashthis(block_chain[-1]['bid']+block_chain[-1]['timestamp']+block_chain[-1]['data']+block_chain[-1]['publickey']+block_chain[-1]['previous_block_hash']))
+        blockhash=str(crypt.hashthis(bid+timestamp+data+publickey+previous_block_hash))
+        sign=str(private.sign(blockhash.encode(),'')[0])
+        newblock={'bid':bid,
+			 'timestamp':timestamp,
+			 'data':data,
+			 'publickey':publickey,
+			 'previous_block_hash':previous_block_hash,
+			 'blockhash':blockhash,
+			 'sign':sign}
+        block_chain.append(newblock)
+    def verify(block):
+        blockhash=str(crypt.hashthis(block['bid']+block['timestamp']+block['data']+block['publickey']+block['previous_block_hash']))
+        if block['blockhash']==blockhash:
+            PK=RSA.importKey(block['publickey'])
+            PK.verify(blockhash,(int(block['sign']),))
+            return True
+        else:
+            return False
 
-#Flask From here
+blockchain()
+
 app = Flask(__name__)
-@app.route('/get_chain', methods = ['GET'])
-def mine_chain():
-	return jsonify(block_chain),200
-@app.route('/get_public', methods = ['GET'])
-def get_public():
-	return (crypt.b64en(my_publickey.exportKey('PEM'))).decode(),200
 @app.route('/')
 def my_form():
     return ('<h3>Enter Key</h3><br/><form method="POST"><input name="key"><input type="submit"></form>')
-
+@app.route('/get',methods=['GET'])
+def get():
+    return jsonify(block_chain) , 200
 @app.route('/', methods=['POST'])
 def my_form_post():
     text = request.form['key']
-    ch=Blockchain.create_block(text)
-    Blockchain.make_block(ch)
+    blockchain.create_block(text)
     time.sleep(2)
     return "Block Will be created",200
-app.run(host = '0.0.0.0', port = 5000)
+app.run(host = '0.0.0.0', port = 5000) 
