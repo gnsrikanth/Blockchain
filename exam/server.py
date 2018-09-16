@@ -11,7 +11,31 @@ import requests
 from uuid import uuid4
 from urllib.parse import urlparse
 
+import hashlib
+from Crypto.Cipher import AES
+from Crypto import Random
+
 block_chain=[]
+
+class aescrypt:
+    BLOCK_SIZE = 16
+    pad = lambda s: s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * chr(BLOCK_SIZE - len(s) % BLOCK_SIZE)
+    unpad = lambda s: s[:-ord(s[len(s) - 1:])]
+
+    def encrypt(raw, password):
+        private_key = hashlib.sha256(password.encode("utf-8")).digest()
+        raw = pad(raw)
+        iv = Random.new().read(AES.block_size)
+        cipher = AES.new(private_key, AES.MODE_CBC, iv)
+        return base64.b64encode(iv + cipher.encrypt(raw))
+
+    def decrypt(enc, password):
+        private_key = hashlib.sha256(password.encode("utf-8")).digest()
+        enc = base64.b64decode(enc)
+        iv = enc[:16]
+        cipher = AES.new(private_key, AES.MODE_CBC, iv)
+        return unpad(cipher.decrypt(enc[16:]))
+
 
 class rsacrypt:
 	def gen():
@@ -65,28 +89,62 @@ private,public=rsacrypt.gen()
 block_chain=[]
 
 class blockchain:
+    
+    #Difficulty
     def nonce(data):    
         no=0
         while True:
             string=crypt.hashthis(data)+str(no)
             newhash=crypt.hashthis(string)
-            if newhash[:4]=='0000':
+            if newhash[:3]=='000':
                 break
             else:
-                no = no + 1
+                no+=1
         return newhash,str(no)
     
     def verify_block(block):
          hash1=crypt.hashthis(block['bid']+block['timestamp']+block['data']+block['publickey']+block['previous_block_hash'])+block['nonce']
          hash2=crypt.hashthis(hash1)
          pk=RSA.importKey(block['publickey'].encode())
-         if (hash2==block['blockhash'],pk.verify(hash2.encode(),eval(block['sign']))) == (True,True):
+         if (hash2==block['blockhash'],
+             pk.verify(hash2.encode(),eval(block['sign'])),
+             block_chain[ int(block['bid']) -1 ]['blockhash'] == block['previous_block_hash']   ) == (True,True,True):
+             
              return True
          else:
              return False
     
-    def verify_chain():
+    def verify_chain(bc):
+        i=1
+        while i<len(bc):
+           if blockchain.verify_block(bc[i]) == True:
+               i+=1
+               resp = True
+           else:
+               resp = False
+               break
+        return resp
+    
+    def create_block(data):
+        bid=str(int(block_chain[-1]['bid'])+1)
+        timestamp=str(time.time())
+        data=str(data)
+        publickey=(public.exportKey('PEM').decode())
+        previous_block_hash=block_chain[-1]['blockhash']
+        blockhash,nonce=blockchain.nonce(bid+timestamp+data+publickey+previous_block_hash)
+        sign=str(private.sign(blockhash.encode(),''))
         
+        block={'bid':bid,
+               'timestamp':timestamp,
+               'data':data,
+               'publickey':publickey,
+               'previous_block_hash':previous_block_hash,
+               'blockhash':blockhash,
+               'nonce':nonce,
+               'sign':sign}
+        block_chain.append(block)
+
+            
     def __init__(self):
         bid=str(0)
         timestamp=str(time.time())
@@ -105,3 +163,4 @@ class blockchain:
                'nonce':nonce,
                'sign':sign}
         block_chain.append(block)
+   
