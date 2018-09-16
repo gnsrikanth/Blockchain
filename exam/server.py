@@ -5,18 +5,30 @@ from Crypto.Hash import SHA256 as hash
 import base64
 import time
 
+
 import json
 from flask import Flask, jsonify, request
 import requests
 from uuid import uuid4
 from urllib.parse import urlparse
 
+
 import hashlib
 from Crypto.Cipher import AES
 from Crypto import Random
 
-block_chain=[]
+'''
+class load_config():
+    f=open("blockchain.config","r")
+    data=f.read()
+    data=json.loads(data)
+    global exam_time
+    global answers_time
+    global difficulty
+    exam_time,answers_time,difficulty = data[0], data[1], data[2]        
 
+'''
+ 
 class aescrypt:
     BLOCK_SIZE = 16
     pad = lambda s: s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * chr(BLOCK_SIZE - len(s) % BLOCK_SIZE)
@@ -35,7 +47,6 @@ class aescrypt:
         iv = enc[:16]
         cipher = AES.new(private_key, AES.MODE_CBC, iv)
         return unpad(cipher.decrypt(enc[16:]))
-
 
 class rsacrypt:
 	def gen():
@@ -86,6 +97,7 @@ class crypt:
 		return base64.b64decode(data)
 
 private,public=rsacrypt.gen()
+    
 block_chain=[]
 
 class blockchain:
@@ -143,8 +155,7 @@ class blockchain:
                'nonce':nonce,
                'sign':sign}
         block_chain.append(block)
-
-            
+     
     def __init__(self):
         bid=str(0)
         timestamp=str(time.time())
@@ -163,4 +174,60 @@ class blockchain:
                'nonce':nonce,
                'sign':sign}
         block_chain.append(block)
-   
+    
+    def queue(data):
+        # Format in [time, data, public, signature]
+        data =  sorted(data)
+        for d in data:
+            text= data[1]
+            sign= data[3]
+            publickey=RSA.importKey(data[2].encode())
+            if publickey.verify(data,sign) == True:
+                pass
+            else:
+                data.remove(d)
+        sorted_data=data
+    
+    def check_long_chain(new_chain):
+        if len(block_chain) < len(new_chain):
+            if blockchain.verify_chain(new_chain)== True:
+                block_chain=new_chain
+        else:
+            pass
+
+    def consensus():
+        f=open("nodes","r")
+        nodes=json.loads(f.read())
+        for n in nodes:
+            try:
+                r=requests.get(f"http://{n}/get")
+                chain=json.loads(r.text)
+                check_long_chain(chain)
+            except:
+                print("[-]Error with consensus")
+
+######################
+#   SERVER 
+######################
+queue=[]
+app = Flask(__name__)
+@app.route('/', methods = ['POST'])
+def index():
+    text = request.form['answers']
+    text=eval(text)
+    if len(queue) <=3:
+        queue.append(text)
+    else:
+        blockchain.create_block(str(queue))
+        queue.clear()
+    return 200
+
+@app.route('/questions',method=['GET'])
+def questions():
+    f=open("questions.txt","r")
+    return (f.read()), 200
+
+@app.route('/answers',method=['GET'])
+def answers():
+    f=open("answers.txt","r")
+    return (f.read()), 200
