@@ -179,14 +179,14 @@ class blockchain:
         # Format in [time, data, public, signature]
         data =  sorted(data)
         for d in data:
-            text= data[1]
-            sign= data[3]
-            publickey=RSA.importKey(data[2].encode())
-            if publickey.verify(data,sign) == True:
+            text= d[1]
+            sign= d[3]
+            publickey=RSA.importKey(d[2].encode())
+            if publickey.verify(text.encode(),sign) == True:
                 pass
             else:
                 data.remove(d)
-        sorted_data=data
+        return data
     
     def check_long_chain(new_chain):
         if len(block_chain) < len(new_chain):
@@ -209,25 +209,46 @@ class blockchain:
 ######################
 #   SERVER 
 ######################
+blockchain()
+
 queue=[]
 app = Flask(__name__)
 @app.route('/', methods = ['POST'])
 def index():
     text = request.form['answers']
-    text=eval(text)
-    if len(queue) <=3:
-        queue.append(text)
+    if len(queue) < 3:
+        queue.append(eval(text))
     else:
-        blockchain.create_block(str(queue))
+        blockchain.create_block(blockchain.queue(queue))
         queue.clear()
-    return 200
+    return "Done",200
+'''
+####
+    text=eval(text)
+    data=str(text[1])
+    pb=text[2]
+    pb=RSA.importKey(pb.encode())
+    sign=text[3]
+    if pb.verify(data.encode(),sign) == True:
+        blockchain.create_block(str(text))
+    else:
+        print("Failed verifing block")
+####
+''' 
 
-@app.route('/questions',method=['GET'])
+
+@app.route('/questions',methods=['GET'])
 def questions():
     f=open("questions.txt","r")
     return (f.read()), 200
 
-@app.route('/answers',method=['GET'])
+@app.route('/answers',methods=['GET'])
 def answers():
     f=open("answers.txt","r")
     return (f.read()), 200
+
+@app.route('/chain',methods=['GET'])
+def chain():
+    return jsonify(block_chain), 200
+
+app.run(host = '0.0.0.0', port = 5000)
