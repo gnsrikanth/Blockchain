@@ -26,7 +26,6 @@ class load_config():
     global answers_time
     global difficulty
     exam_time,answers_time,difficulty = data[0], data[1], data[2]        
-
 '''
 
 BLOCK_SIZE = 16
@@ -99,10 +98,9 @@ class crypt:
 
 private,public=rsacrypt.gen()
     
-block_chain=[]
 
 class blockchain:
-    
+    block_chain=[]
     #Difficulty
     def nonce(data):    
         no=0
@@ -118,10 +116,11 @@ class blockchain:
     def verify_block(block):
          hash1=crypt.hashthis(block['bid']+block['timestamp']+block['data']+block['publickey']+block['previous_block_hash'])+block['nonce']
          hash2=crypt.hashthis(hash1)
+         
+         #block_chain[ int(block['bid']) -1 ]['blockhash'] == block['previous_block_hash'] 
          pk=RSA.importKey(block['publickey'].encode())
          if (hash2==block['blockhash'],
-             pk.verify(hash2.encode(),eval(block['sign'])),
-             block_chain[ int(block['bid']) -1 ]['blockhash'] == block['previous_block_hash']   ) == (True,True,True):
+             pk.verify(hash2.encode(),eval(block['sign']))  ) == (True,True):
              
              return True
          else:
@@ -129,6 +128,7 @@ class blockchain:
     
     def verify_chain(bc):
         i=1
+        resp=False
         while i<len(bc):
            if blockchain.verify_block(bc[i]) == True:
                i+=1
@@ -139,11 +139,11 @@ class blockchain:
         return resp
     
     def create_block(data):
-        bid=str(int(block_chain[-1]['bid'])+1)
+        bid=str(int(blockchain.block_chain[-1]['bid'])+1)
         timestamp=str(time.time())
         data=str(data)
         publickey=(public.exportKey('PEM').decode())
-        previous_block_hash=block_chain[-1]['blockhash']
+        previous_block_hash=blockchain.block_chain[-1]['blockhash']
         blockhash,nonce=blockchain.nonce(bid+timestamp+data+publickey+previous_block_hash)
         sign=str(private.sign(blockhash.encode(),''))
         
@@ -155,7 +155,7 @@ class blockchain:
                'blockhash':blockhash,
                'nonce':nonce,
                'sign':sign}
-        block_chain.append(block)
+        blockchain.block_chain.append(block)
      
     def __init__(self):
         bid=str(0)
@@ -174,71 +174,39 @@ class blockchain:
                'blockhash':blockhash,
                'nonce':nonce,
                'sign':sign}
-        block_chain.append(block)
+        blockchain.block_chain.append(block)
    
     def check_long_chain(new_chain):
-        if len(block_chain) < len(new_chain):
+        if len(blockchain.block_chain) < len(new_chain):
             if blockchain.verify_chain(new_chain)== True:
-                block_chain=new_chain
+                blockchain.block_chain=new_chain
         else:
             pass
 
-    def consensus(data):
+    def consensus():
         try:
             f=open("nodes.txt","r")
             nodes=json.loads(f.read())
             for n in nodes:
-                r=requests.get(f"http://{n}/{data}")
+                r=requests.get(f"http://{n}/chain")
                 chain=json.loads(r.text)
                 blockchain.check_long_chain(chain)
         except:
                 print("[-]Error with consensus")
-
-######################
-#   SERVER 
-######################
 blockchain()
 
-queue=[]
-
-#Keep questions in blockchain
-f=open("questions.txt","r")
-qus=f.read()
-f.close()
-f=open("answers.txt","r")
-ans=f.read()
-bk=str([(public.exportKey('PEM')).decode(),qus,(aescrypt.encrypt(ans,"PASS")).decode()])
-
-blockchain.consensus("chain")
-blockchain.create_block(bk)
-
+# Server
 app = Flask(__name__)
 @app.route('/', methods = ['POST'])
 def index():
-    text = request.form['answers']
-    d=eval(text)
-    text= d[1]
-    sign= d[3]
-    publickey=RSA.importKey(d[2].encode())
-    if publickey.verify(text.encode(),sign) == True:
-        blockchain.create_block(text)    
-    else:
-        pass
-    blockchain.consensus("chain")
-    if block_chain[-1]['data']==d[1]:
-        pass
-    else:
-        blockchain.create_block((queue))
-    return "Done",200
-
-
-@app.route('/pass',methods=['GET'])
-def answers_queue():
-    blockchain.create_block(str([(public.exportKey('PEM')).decode(),"PASS"]))
-    return jsonify(block_chain), 200
-
-@app.route('/chain',methods=['GET'])
+    text = request.form['data'] 
+    print(text)
+    #blockchain.consensus()
+    (blockchain.create_block(text))
+    return '',200
+    
+@app.route('/chain', methods = ['GET'])
 def chain():
-    return jsonify(block_chain), 200
+    return jsonify(blockchain.block_chain), 200
 
 app.run(host = '0.0.0.0', port = 5000)
