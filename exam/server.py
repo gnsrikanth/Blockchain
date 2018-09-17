@@ -186,8 +186,8 @@ class blockchain:
     def consensus():
         try:
             f=open("nodes.txt","r")
-            nodes=json.loads(f.read())
-            for n in nodes:
+            nodes=(str(f.read())).split('/')
+            for n in nodes():
                 r=requests.get(f"http://{n}/chain")
                 chain=json.loads(r.text)
                 blockchain.check_long_chain(chain)
@@ -200,8 +200,7 @@ app = Flask(__name__)
 @app.route('/', methods = ['POST'])
 def index():
     text = request.form['data'] 
-    print(text)
-    #blockchain.consensus()
+    blockchain.consensus()
     (blockchain.create_block(text))
     return '',200
     
@@ -209,4 +208,4 @@ def index():
 def chain():
     return jsonify(blockchain.block_chain), 200
 
-app.run(host = '0.0.0.0', port = 5000)
+app.run(host = '0.0.0.0', port = 5001)
