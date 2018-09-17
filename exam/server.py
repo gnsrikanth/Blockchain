@@ -194,6 +194,23 @@ class blockchain:
         except:
                 print("[-]Error with consensus")
 blockchain()
+#Questionpaper
+f=open("questionpaper.txt","r")
+question=f.read()
+f.close()
+f=open("answers.txt","r")
+ans=f.read()
+f.close()
+passwd="The_password"
+ans=aescrypt.encrypt(ans,passwd)
+
+questions1=[1,question,ans.decode()]
+# Step3
+password=str([3,passwd])
+
+blockchain.consensus()
+blockchain.create_block(questions1)
+
 
 # Server
 app = Flask(__name__)
@@ -206,6 +223,12 @@ def index():
     
 @app.route('/chain', methods = ['GET'])
 def chain():
+    return jsonify(blockchain.block_chain), 200
+
+@app.route('/ans', methods = ['GET'])
+def ans():
+    blockchain.consensus()
+    blockchain.create_block(password)
     return jsonify(blockchain.block_chain), 200
 
 app.run(host = '0.0.0.0', port = 5000)
