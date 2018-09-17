@@ -5,17 +5,29 @@ from Crypto.Hash import SHA256 as hash
 import base64
 import time
 
-import requests
+import random
 
+import json
+import requests
 import hashlib
 from Crypto.Cipher import AES
 from Crypto import Random
 
+'''
+class load_config():
+    f=open("blockchain.config","r")
+    data=f.read()
+    data=json.loads(data)
+    global exam_time
+    global answers_time
+    global difficulty
+    exam_time,answers_time,difficulty = data[0], data[1], data[2]        
+'''
 
 BLOCK_SIZE = 16
 pad = lambda s: s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * chr(BLOCK_SIZE - len(s) % BLOCK_SIZE)
 unpad = lambda s: s[:-ord(s[len(s) - 1:])]
- 
+
 class aescrypt:
 
     def encrypt(raw, password):
@@ -81,37 +93,43 @@ class crypt:
 		return base64.b64decode(data)
 
 private,public=rsacrypt.gen()
-
-chain=requests.get('http://127.0.0.1:5000/chain')
-chain=chain.text
-chain=json.loads(chain)
-##### RANDOM
-randomid=1
-data=chain[1]['data']
-pbk,questions,ans=data
-questions=eval(questions)
-
-answers=[]
-for qns in questions:
-    print(qns)
-    a=input('\nAns:')
-    answers.append(a)
+    
+chain=requests.get("http://127.0.0.1:5000/chain")
+chain=json.loads(chain.text)
 
 
-'''[time, data, public, signature]'''
+qus=random.randint(1,len(chain))
+#Question format    [1,question,ans]
 
-ans=[str(time.time()),str(answers),public.exportKey('PEM').decode(),private.sign(str(answers).encode(),'')]
-requests.post('http://127.0.0.1:5000',data={'answers':str(ans)})
+data=eval(chain[qus]['data'])
+op,question,ans=data[0],data[1],data[2]
+key=(chain[qus]['publickey'])
 
-passwd=requests.get('http://127.0.0.1:5000/pass')
-passwd=(passwd.text)
-ans1=(aescrypt.decrypt(ans,passwd)).decode()
-ans1=eval(ans1)
+#Verify_block_here()
+print(question)
+answers=input("Ans:")
 
-marks=0
-for i in range (len(questions)):
-    if ans1[i]==answers[i]:
-        marks=marks+1
-    else:
-        pass
-print("Marks:"+str(marks))
+#make answers format 2*question*ans*answers*mypublic*sign
+resp=str([2,question,ans,answers,public.exportKey('PEM').decode(),private.sign((public.exportKey('PEM').decode()+answers).encode(),'')])
+requests.post("http://127.0.0.1:5000",data={'data':resp})
+
+#chain of ans
+
+chain=requests.get("http://127.0.0.1:5000/ans")
+chain=json.loads(chain.text)
+
+ns=len(chain)-1
+while len(chain)>0:
+    if (str(chain[ns]['data']))[1:2]=='3':
+        if chain[ns]['publickey']==key:
+            passwd=chain[ns]['data']
+            nl,password=eval(passwd)
+            break
+        else:
+              ns=ns-1   
+
+ans1=(aescrypt.decrypt(ans,password)).decode()
+if ans1 == answers:
+    print("Pass")
+else:
+    print("Fail")
