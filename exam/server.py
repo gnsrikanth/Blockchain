@@ -187,7 +187,7 @@ class blockchain:
         try:
             f=open("nodes.txt","r")
             nodes=(str(f.read())).split('/')
-            for n in nodes():
+            for n in nodes:
                 r=requests.get(f"http://{n}/chain")
                 chain=json.loads(r.text)
                 blockchain.check_long_chain(chain)
@@ -208,4 +208,4 @@ def index():
 def chain():
     return jsonify(blockchain.block_chain), 200
 
-app.run(host = '0.0.0.0', port = 5001)
+app.run(host = '0.0.0.0', port = 5000)
