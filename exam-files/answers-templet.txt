@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<title>W3.CSS Template</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<body class="w3-content" style="max-width:1200px">
+
+<div class="w3-panel">
+  <i class="w3-xlarge fa fa-bars"></i>
+</div>
+<!-- First Grid: Logo & About -->
+<div class="w3-row">
+<div class="w3-half w3-container">
+  <h1 class="w3-xxlarge w3-text-light-grey">{myid}</h1>
+
+
+<form action="/" method=post>  
+<h1 class="w3-xxlarge w3-text-grey">{q1}</h1><br>
+<input type="radio" name="options" id="option1" value="a"> A </input><br>
+<input type="radio" name="options" id="option2" value="b"> B</input><br>
+<input type="radio" name="options" id="option3" value="c"> C </input><br>
+<input type="radio" name="options" id="option3" value="d"> D </input><br>
+  <h1 class="w3-xxlarge w3-text-grey">{q2}</h1><br>
+<input type="radio" name="options" id="option1" value="a"> A </input><br>
+<input type="radio" name="options" id="option2" value="b"> B</input><br>
+<input type="radio" name="options" id="option3" value="c"> C </input><br>
+<input type="radio" name="options" id="option3" value="d"> D </input><br>
+  <h1 class="w3-xxlarge w3-text-grey">{q3}</h1><br>
+<input type="radio" name="options" id="option1" value="a"> A </input><br>
+<input type="radio" name="options" id="option2" value="b"> B</input><br>
+<input type="radio" name="options" id="option3" value="c"> C </input><br>
+<input type="radio" name="options" id="option3" value="d"> D </input><br>
+  <h1 class="w3-xxlarge w3-text-grey">{q4}</h1><br>
+<input type="radio" name="options" id="option1" value="a"> A </input><br>
+<input type="radio" name="options" id="option2" value="b"> B</input><br>
+<input type="radio" name="options" id="option3" value="c"> C </input><br>
+<input type="radio" name="options" id="option3" value="d"> D </input><br>
+
+<button type="submit">
+</form>
+
+</div>
+
+
+</body>
+</html>
